@@ -1,0 +1,26 @@
+[general]
+creator=R package 'raster'
+created=2018-06-28 14:24:55
+[georeference]
+nrows=1648
+ncols=1115
+xmin=234554.460719589
+ymin=6412509.24854603
+xmax=1349554.46071959
+ymax=8060509.24854603
+projection=+proj=utm +zone=32 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0
+[data]
+datatype=FLT8S
+byteorder=little
+nbands=1
+bandorder=BIL
+categorical=FALSE
+minvalue=10
+maxvalue=99
+nodatavalue=-1.7e+308
+[legend]
+legendtype=
+values=
+color=
+[description]
+layername=AR50TYPE100m_ProjectRaster1
