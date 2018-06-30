@@ -7,6 +7,7 @@ require(classInt)
 require(RColorBrewer)
 require(rasterVis)
 require(gridExtra)
+require(MuMIn)
 
 #Norway muniicipaliy
 norway<-getData('GADM',country='NOR',level=2) #Does not have the updated kommune list (438, should be 422)
@@ -190,6 +191,7 @@ plot(kommetbio$NOR_msk_alt,kommetbio$Livestock.2015-kommetbio$Livestock.1949,xla
 ar50type<-raster('AR50Type100mras')
 ar50typep<-projectRaster(ar50type,noraltutm)
 
+
 #All landuses as cover
 builtup<-extract(ar50typep,kommetbio,method='simple',fun=function(x,...)length(x[x==10])/length(x),na.rm=T)
 agricultural<-extract(ar50typep,kommetbio,method='simple',fun=function(x,...)length(x[x==20])/length(x),na.rm=T)
@@ -197,23 +199,57 @@ forest<-extract(ar50typep,kommetbio,method='simple',fun=function(x,...)length(x[
 otherveg<-extract(ar50typep,kommetbio,method='simple',fun=function(x,...)length(x[x==50])/length(x),na.rm=T)
 mires<-extract(ar50typep,kommetbio,method='simple',fun=function(x,...)length(x[x==60])/length(x),na.rm=T)
 
-
 kommetbio$builtup<-builtup
 kommetbio$agricultural<-agricultural
 kommetbio$forest<-forest
 kommetbio$otherveg<-otherveg
 kommetbio$mires<-mires
 
-#Forest #Function to assess proportion of landcover in each kommune that is forest
-spplot(kommetbio,'forest')
-#Plot kommune forest cover against herbivores
+
+# #Climate
+# #Download 3 worldclim tiles that cover norway
+# climdat<-getData('worldclim',res=0.5,var='bio',lat=60,lon=5)
+# climdat1<-getData('worldclim',res=0.5,var='bio',lat=70,lon=5)
+# climdat2<-getData('worldclim',res=0.5,var='bio',lat=70,lon=40)
+# #Merge to one extent
+# m1<-merge(climdat,climdat1)
+# m2<-merge(m1,climdat2)
+# #Crop and mask to Norway
+# c1<-crop(m2,noralt)
+# norbioclim<-mask(c1,noralt,filename='NorBioClim')
+
+norbioclimdat<-stack('NorBioClim')
+norbioclim1<-projectRaster(norbioclimdat,noraltutm)
+mst<-extract(norbioclim1[[10]],kommetbio,fun=mean,na.rm=T)
+map<-extract(norbioclim1[[12]],kommetbio,fun=mean,na.rm=T)
+psea<-extract(norbioclim1[[15]],kommetbio,fun=mean,na.rm=T)
+
+kommetbio$meansumtemp<-mst
+kommetbio$meanannprecip<-map
+kommetbio$precipseason<-psea
+
+#Plot kommune vegetation cover against herbivores
 plot(kommetbio$forest,kommetbio$changeinwildprop)
 plot(kommetbio$forest,kommetbio$Wildlife.2015-kommetbio$Wildlife.1949,xlab='Forest Cover',ylab='Change in wildlife biomass')
 plot(kommetbio$forest,kommetbio$Livestock.2015-kommetbio$Livestock.1949,xlab='Forest Cover',ylab='Change in livestock biomass')
 
-biplot(prcomp(scale(kommetbio@data[,c(148:155)])))
+plot(kommetbio$otherveg,kommetbio$Wildlife.2015-kommetbio$Wildlife.1949,xlab='Snaumark',ylab='Change in wildlife biomass')
+plot(kommetbio$otherveg,kommetbio$Livestock.2015-kommetbio$Livestock.1949,xlab='Snaumark',ylab='Change in livestock biomass')
 
+plot(kommetbio$agricultural,kommetbio$Wildlife.2015-kommetbio$Wildlife.1949,xlab='Agriculture',ylab='Change in wildlife biomass')
+plot(kommetbio$agricultural,kommetbio$Livestock.2015-kommetbio$Livestock.1949,xlab='Agriculture',ylab='Change in livestock biomass')
+
+
+#PCA of change in wildlife and livestock with climate data and landcover data
+biplot(prcomp(scale(kommetbio@data[,c(148:158)])))
+
+
+
+#Plot change in wildlife biomass a
 rewildras<-rasterize(kommetbio,noraltutm,field='changeinwildprop')
+changelivestockras<-rasterize(kommetbio,noraltutm,field='changeinlivestock')
+changewildliferas<-rasterize(kommetbio,noraltutm,field='changeinwildlife')
+
 diverge0 <- function(p, ramp) {
   require(RColorBrewer)
   require(rasterVis)
@@ -234,5 +270,59 @@ diverge0 <- function(p, ramp) {
   p
 }
 
-p1<-levelplot(rewildras,margin=F)
+p1<-levelplot(changelivestockras,margin=F,main='Change in livestock biomass')
+p2<-levelplot(changewildliferas,margin=F,main='Change in wildlife biomass')
 diverge0(p1,'RdBu')
+diverge0(p2,'RdBu')
+
+#Test drivers of rewildling
+lm1<-lm(changeinwildlife~changeinlivestock+meansumtemp+meanannprecip+precipseason+agricultural+forest+otherveg,data=kommetbio@data)
+lm2<-step(lm1)
+summary(lm2)
+
+aicdataframe<-data.frame(scale(kommetbio@data[,148:158]))
+
+panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
+{
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  r <- abs(cor(x, y))
+  txt <- format(c(r, 0.123456789), digits = digits)[1]
+  txt <- paste0(prefix, txt)
+  if(missing(cex.cor)) cex.cor <- 0.8/strwidth(txt)
+  text(0.5, 0.5, txt, cex = cex.cor * r)
+}
+pairs(aicdataframe[,1:11],upper.panel=panel.cor)
+#MST correlated with elevation, 
+
+#Model averaging
+globmodglm<-glm(changeinwildlife~changeinlivestock+builtup+agricultural+forest+otherveg+meansumtemp+meanannprecip+precipseason,data=aicdataframe,na.action=na.fail)
+modsetglm<-dredge(globmodglm,trace=2)
+modselglm<-model.sel(modsetglm)
+modavgglm<-model.avg(modselglm)
+importance(modavgglm)
+summary(modavgglm)
+
+
+#Model with only landcover
+globmodglm<-glm(changeinwildlife~changeinlivestock+builtup+agricultural+forest+otherveg+mires,data=aicdataframe,na.action=na.fail)
+modsetglm<-dredge(globmodglm,trace=2)
+modselglm<-model.sel(modsetglm)
+modavgglm<-model.avg(modselglm,fit=T)
+importance(modavgglm)
+summary(modavgglm)
+
+
+#Model with only climate
+globmodglm<-glm(changeinwildlife~meansumtemp*meanannprecip*precipseason,data=aicdataframe,na.action=na.fail)
+modsetglm<-dredge(globmodglm,trace=2)
+modselglm<-model.sel(modsetglm)
+modavgglm<-model.avg(modselglm,fit=T)
+importance(modavgglm)
+summary(modavgglm)
+
+stack1<-stack(norbioclim1$layer.10,norbioclim1$layer.12,norbioclim1$layer.15)
+names(stack1)<-c('meansumtemp','meanannprecip','precipseason')
+p1<-raster::predict(stack1,summary(modavgglm))
+plot(p1)#Predicts increase along coast. Not increase around Oslo and Trondheim...
+spplot(kommetbio,'changeinwildlife')
