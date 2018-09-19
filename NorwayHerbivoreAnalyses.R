@@ -105,7 +105,10 @@ metbiosum<-data.frame(cbind(knr2017=listspp$wildreindeer$knr2017,kommune=listspp
 
 metbiosum$Cattle<-metbiosum$Cows+metbiosum$Heifer
 
-
+#View an appropriate subset of the dataset to look for strange things:
+#View(metbiosum[metbiosum$knr2017 == 1857,])
+#This command can be used to change values in the dataset:
+#metbiosum$Moose[metbiosum$knr2017 == 1857 & metbiosum$Year == 2009] <- 999999
 
 # Summaries ---------------------------------------------------------------
 
