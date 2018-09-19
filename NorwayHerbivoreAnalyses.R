@@ -1,5 +1,7 @@
 #Norway large herbivore analysis
 
+# Gunnar tester git
+
 rm(list=ls())
 require(rgdal)
 require(raster)
