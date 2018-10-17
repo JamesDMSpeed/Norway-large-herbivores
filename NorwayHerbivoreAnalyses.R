@@ -104,7 +104,9 @@ metbiosum<-data.frame(cbind(knr2017=listspp$wildreindeer$knr2017,kommune=listspp
 metbiosum$Cattle<-metbiosum$Cows+metbiosum$Heifer
 
 
-
+koms<-c('Vadsø','Vardø','Båtsfjord','Nesseby','Tana')
+komnumb<-norwaykom2017$kommunenr[norwaykom2017$NAVN%in%koms]
+write.csv(metabolicbiomass[metabolicbiomass$knr2017%in%komnumb,],'FinnmarkKommData.csv')
 # Summaries ---------------------------------------------------------------
 
 
