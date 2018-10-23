@@ -10,8 +10,8 @@ View(BrowGraz)
 BrowGraz0110 <- read_excel("Browsing/BrowvsGraz0110.xlsx")
 View(BrowGraz0110)
 
-BrowGraz0310 <- read_excel("Browsing/Browse0210/BrowvsGraz0310.xlsx")
-View(BrowGraz0310)
+dat <- read_excel("BrowsGraz/BrowvsGraz0310_final.xlsx")
+View(dat)
 
 
 
