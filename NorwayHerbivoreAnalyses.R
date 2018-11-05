@@ -8,8 +8,9 @@ require(RColorBrewer)
 require(rasterVis)
 require(gridExtra)
 require(MuMIn)
-require(nlme)
+#require(nlme)
 require(NbClust)
+require(vegan)
 
 
 # Set up ------------------------------------------------------------------
@@ -20,6 +21,7 @@ norway0<-getData('GADM',country='NOR',level=0) #Norway outline
 norwaykom2017<-readOGR(getwd(),'Kommuner_2017',encoding='UTF-8')
 nk2<-crop(norwaykom2017,c(-98891, 1114929,6450245,7939986))
 #Norway elevation
+detach('package:nlme')
 noralt<-getData('alt',country='NOR')
 
 #Read in data for each species
@@ -95,6 +97,7 @@ metabolicbiomass$Wildlife<-rowSums(metabolicbiomass[,c(4,6:9)])
 #Wild as a proportion of total
 metabolicbiomass$WildProp<-metabolicbiomass$Wildlife/metabolicbiomass$Total
 
+
 #Summed biomass
 metbiosum<-data.frame(cbind(knr2017=listspp$wildreindeer$knr2017,kommune=listspp$wildreindeer$kommune,Year=listspp$wildreindeer$aar,Wild_reindeer=listspp$wildreindeer$sumvillrein/365,
                             Semi_domestic_reindeer=listspp$semidomreindeer$Sumtam/365,
@@ -125,6 +128,13 @@ title(ylab=expression('Metabolic biomass kg km'^-2),line=2.5)
 dev.off()
 
 
+#Yearly totals
+rowSums(yearlysums[,c(4:7,2:3,8,13,11,12)])/sum(listspp$sheep$utmar[listspp$sheep$AAR==2015])
+#Yearly livestock      
+rowSums(yearlysums[,c(3,8,11:13)])/sum(listspp$sheep$utmar[listspp$sheep$AAR==2015])
+#Yearly wildlife
+rowSums(yearlysums[,c(2,4:7)])/sum(listspp$sheep$utmar[listspp$sheep$AAR==2015])
+                   
 #Rewilding
 #Add metabiolicbiomasses to Norwegian kommune spatial data
 #First reshape to metabolic biomass to wide
@@ -288,6 +298,7 @@ kommetbio$changeinlivestock<-kommetbio$Livestock.2015-kommetbio$Livestock.1949
 
 
 
+
 # Modelling change in biomas ----------------------------------------------
 #Elevation
 noraltutm<-projectRaster(noralt,crs=crs(kommetbio),res=1000)
@@ -404,7 +415,7 @@ kommetbio$x<-cents[,1]
 kommetbio$y<-cents[,2]
 
 #Make dataframe including variables for modelling and xy coordinates
-aicdataframe<-data.frame(cbind(scale(kommetbio@data[,148:158]),kommetbio@data[,159:160]))
+aicdataframe<-data.frame(cbind(scale(kommetbio@data[,150:161]),kommetbio@data[,162:163]))
 
 #Cross correlations between explanatory variables?
 panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
@@ -417,7 +428,7 @@ panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
   if(missing(cex.cor)) cex.cor <- 0.8/strwidth(txt)
   text(0.5, 0.5, txt, cex = cex.cor * r)
 }
-pairs(aicdataframe[,1:11],upper.panel=panel.cor)
+pairs(aicdataframe[,c(1:12,14)],upper.panel=panel.cor)
 #MST correlated with elevation, 
 
 #Model averaging GLM
@@ -448,6 +459,7 @@ summary(modavgglm)
 
 
 #Model averaging GLS - accounting for spatial autocorrelation
+require(nlme)
 globmodgls<-gls(changeinwildlife~changeinlivestock+builtup+agricultural+forest+meansumtemp+meanannprecip+precipseason,
                 data=aicdataframe,na.action=na.fail,method='ML',
                 correlation=corExp(form=~x+y,nugget=T))
@@ -511,14 +523,17 @@ mb1<-metabolicbiomass[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!
 dm1<-vegdist(mb1[,c(4:10,13,14,16)])
 #Hierarchical clustering
 hm1<-hclust(dm1)
+hm2<-hclust(dm1,method='ward.D')
 plot(hm1,labels=metabolicbiomass$knr2017[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841])
 #Cut tree
 #How many clusters?
-#indexchoice<-'cindex'
-#methodchoice<-'complete'
-#nclust<-NbClust(dm1,method=methodchoice,min.nc=2,max.nc=12,index=indexchoice)
-#nclust$Best.nc ###8
+indexchoice<-'cindex'
+methodchoice<-'complete'
+nclust<-NbClust(dm1,method=methodchoice,min.nc=2,max.nc=12,index=indexchoice)
+nclust$Best.nc ###8
+
 mb1$cm1<-cutree(hm1,k=8)
+write.table(mb1,'KommuneClust.csv')
 
 mbcutwide<-reshape(mb1,timevar='Year',direction='wide',idvar='knr2017',drop='kommune')
 mbcuttreedf<-merge(kommetbio,mbcutwide,by.x='KOMMUNENUM',by.y='knr2017')
@@ -547,7 +562,7 @@ axis(2, at = seq(0, max(colSums(app1)[1:7]), length.out = 5),las=1,
      labels = round(seq(0, max(herbclusts[1:7,2:11]), length.out = 5),-1))+
 axis(4, at = seq(0, max(colSums(app1)[8]), length.out = 5),las=1,
      labels = round(seq(0, max(herbclusts[8,2:11]), length.out = 5),-1))+
-arrows(8.5,0,8.5,1.3,code=0,lty=2)
+arrows(8.5,0,8.5,1.5,code=0,lty=2,lwd=2)
 dev.off()
 
 #Make dataframe of props
@@ -573,21 +588,21 @@ p8<-barchart(Cluster~Moose+Red_deer+Roe_deer+Musk_ox+Wild_reindeer+Semi_domestic
 doubleYScale(p17,p8)
 
 #Correspondance plot
+yrs<-c(1949,1959,1969,1979,1989,1999,2009,2015)
+cp1<-brewer.pal(8,'Dark2')
 p1<-levelplot(mb1$cm1~mb1$Year+as.factor(mb1$knr2017),col.regions=cp1,cuts=7,yaxt='n',scales=list(y=list(at=0),x=list(at=yrs)),
           colorkey=list(lables=list(labels=clusternames)),ylab='Municipality',xlab='Year')
 
 #Plot distribution of clusters
-cp1<-brewer.pal(8,'Dark2')
+
 tiff(width=10,height=9,units='in',res=100,'HerbivoreClusterDistribution.tif')
 p2<-spplot(mbcuttreedf,c('cm1.1949','cm1.1959','cm1.1969','cm1.1979','cm1.1989','cm1.1999','cm1.2009','cm1.2015'),cuts=7,
        names.attr=c(1949,1959,1969,1979,1989,1999,2009,2015),col=NA,col.regions=cp1,as.table=T,colorkey=list(labels=list(labels=clusternames)))+
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
-grid.arrange(p0,p1,p2,ncol=1)
+#grid.arrange(p0,p1,p2,ncol=1)
 
-
-)
 
 # Ordinations -------------------------------------------------------------
 # cca1<-cca(metabolicbiomass[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841,c(4:10,13,14,16)])
@@ -609,6 +624,18 @@ mx1<-mx[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabo
 #Make factor for year:biogeography
 mx1$YearRegion<-paste(mx1$ALTREG,mx1$Year,sep='_')
 
+#Summarise by biogeography
+with(mx1[mx1$Year==2015,],tapply(WildProp,ALTREG,summary,na.rm=T))
+with(mx1[mx1$Year==2015,],tapply(Wildlife,ALTREG,summary,na.rm=T))
+with(mx1,tapply(WildProp,Year,summary))
+with(mx1,tapply(Livestock,Year,summary))
+with(mx1,tapply(Wildlife,Year,summary))
+
+#Plot biogeography
+kommetbio$BioZone<-mx1$ALTREG[match(kommetbio$KOMMUNENUM,mx1$knr2017)]
+cp2<-c('blue','green','brown')
+spplot(kommetbio,'BioZone',col.regions=cp2,col=NA)
+spplot(kommetbio,'BioZone',col.regions=cp2)
 
 mds1<-metaMDS(metabolicbiomass[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841,c(4:10,13,14,16)])
 e1<-envfit(mds1~as.factor(metabolicbiomass$Year[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841]))
@@ -618,16 +645,14 @@ plot(e1,label=levels(as.factor(metabolicbiomass$Year)),cex=0.8)
 lines(e1$factors$centroids)
 #ordiellipse(mds1,metabolicbiomass$Year[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841])
 
-yrs<-c(1949,1959,1969,1979,1989,1999,2009,2015)
-
 e2<-envfit(mds1~mx1$YearRegion)
-tiff(width=6,height=6,units='in',res=100,'NorwayHerbivoreTrajectoriesNMDS.tif')
+#tiff(width=6,height=6,units='in',res=100,'NorwayHerbivoreTrajectoriesNMDS.tif')
 par(mar=c(5,5,1,1))
 plot(mds1,type='n')
-points(mds1$points[mx1$ALTREG=='inlandlow',],cex=0.1,col='green')
-points(mds1$points[mx1$ALTREG=='mountain',],cex=0.1,col='brown')
-points(mds1$points[mx1$ALTREG=='coast',],cex=0.1,col='blue')
-text(mds1,display='species')
+#points(mds1$points[mx1$ALTREG=='inlandlow',],cex=0.1,col='green')
+#points(mds1$points[mx1$ALTREG=='mountain',],cex=0.1,col='brown')
+#points(mds1$points[mx1$ALTREG=='coast',],cex=0.1,col='blue')
+text(mds1,display='species',cex=0.8)
 lines(e2$factors$centroids[1:8,],col='blue')
 text(e2$factors$centroids[1:8,],labels=yrs,col='blue',cex=0.8)
 lines(e2$factors$centroids[9:16,],col='green')
@@ -635,7 +660,31 @@ text(e2$factors$centroids[9:16,],labels=yrs,col='green',cex=0.8)
 lines(e2$factors$centroids[17:24,],col='brown')
 text(e2$factors$centroids[17:24,],labels=yrs,col='brown',cex=0.8)
 legend('topr',pch=16,col=c('blue','green','brown'),c('Coast','Inland','Mountain'))
-dev.off()
+#dev.off()
 
 plot(mds1,type='n')
-ordiarrows(mds1,mx1$knr2017,startmark=1)
+ordiarrows(mds1,mx1$knr2017,col=levels(as.factor(mx1$Year)),startmark=1)
+
+
+
+#Fitting clusters to MDS
+mdsClust<-metaMDS(mb1[mb1$knr2017!=1857 & mb1$knr2017!=1874 & mb1$knr2017!=1841,c(4:10,13,14,16)])
+e2<-envfit(mdsClust~as.factor(mb1$Year))
+tiff(width=6,height=6,units='in',res=100,'NorwayHerbivoreClusterNMDS.tif')
+plot(mdsClust,col=mb1$cm1,type='n')
+cexes<-seq(0.8,0.2,length.out=8)
+for (i in 1:8){
+  for(j in 1:8){
+points(mdsClust$points[mb1$cm1==i & mb1$Year==levels(as.factor(mb1$Year))[j],],col=cp1[i]
+       ,pch=16,cex=cexes[j])}}
+#Label spp
+rownames(mdsClust$species)<-sub('_',' ',rownames(mdsClust$species))
+ordipointlabel(mdsClust,display='species',add=T,pch=c('+'),cex=1,font=2)
+points(mdsClust$species,pch='+')
+#Trend
+lines(e2$factors$centroids,col='blue')
+text(e2$factors$centroids,label=yrs,cex=0.8,col='blue')
+legend('topr',pch=16,pt.cex=c(cexes,rep(0.8,times=8)),c(levels(as.factor(mb1$Year)),1:8),cex=0.8,ncol=2,col=c(rep(1,times=8),cp1),title=c('Year Cluster'))
+#(e2)
+#ordiarrows(mdsClust,mb1$knr2017,startmark=1)
+dev.off()
