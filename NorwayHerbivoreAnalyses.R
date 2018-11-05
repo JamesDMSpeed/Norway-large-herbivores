@@ -349,9 +349,9 @@ mst<-extract(norbioclim1[[10]],kommetbio,fun=mean,na.rm=T)
 map<-extract(norbioclim1[[12]],kommetbio,fun=mean,na.rm=T)
 psea<-extract(norbioclim1[[15]],kommetbio,fun=mean,na.rm=T)
 
-kommetbio$meansumtemp<-mst
-kommetbio$meanannprecip<-map
-kommetbio$precipseason<-psea
+kommetbio$meansumtemp<-as.vector(mst)
+kommetbio$meanannprecip<-as.vector(map)
+kommetbio$precipseason<-as.vector(psea)
 
 #Plot kommune vegetation cover against herbivores
 plot(kommetbio$forest,kommetbio$changeinwildprop)
@@ -458,11 +458,26 @@ importance(modavgglm)
 summary(modavgglm)
 
 
+#Residuals of snaumark: temperature
+lmR<-lm(otherveg~meansumtemp,data=aicdataframe)
+aicdataframe$otherveg_tempR<-residuals(lmR)
+#Residuals of latitude:temperature
+lmRlat<-lm(y~meansumtemp,data=aicdataframe)
+aicdataframe$latitude_tempR<-residuals(lmRlat)
+
+
 #Model averaging GLS - accounting for spatial autocorrelation
 require(nlme)
-globmodgls<-gls(changeinwildlife~changeinlivestock+builtup+agricultural+forest+meansumtemp+meanannprecip+precipseason,
+globmodgls<-gls(changeinwildlife~changeinlivestock+otherveg_tempR+agricultural+forest+meansumtemp+meanannprecip+latitude_tempR,
                 data=aicdataframe,na.action=na.fail,method='ML',
                 correlation=corExp(form=~x+y,nugget=T))
+#Change in wildlife prop
+#aicdataframe2<-aicdataframe[!is.na(aicdataframe$changeinwildprop),]
+#globmodgls<-gls(changeinwildprop~otherveg_tempR+agricultural+forest+meansumtemp+meanannprecip+latitude_tempR,
+#                data=aicdataframe2,na.action=na.fail,method='ML',
+#                correlation=corExp(form=~x+y,nugget=T))
+
+
 modsetgls<-dredge(globmodgls,trace=2)
 modselgls<-model.sel(modsetgls)
 modavggls<-model.avg(modselgls)
@@ -535,7 +550,7 @@ nclust$Best.nc ###8
 mb1$cm1<-cutree(hm1,k=8)
 write.table(mb1,'KommuneClust.csv')
 
-mbcutwide<-reshape(mb1,timevar='Year',direction='wide',idvar='knr2017',drop='kommune')
+mbcutwide<-reshape(mb1[,c(1:3,21)],timevar='Year',direction='wide',idvar='knr2017',drop='kommune')
 mbcuttreedf<-merge(kommetbio,mbcutwide,by.x='KOMMUNENUM',by.y='knr2017')
 
 #Number of kommune per year in each cluster
@@ -602,6 +617,28 @@ p2<-spplot(mbcuttreedf,c('cm1.1949','cm1.1959','cm1.1969','cm1.1979','cm1.1989',
 dev.off()
 
 #grid.arrange(p0,p1,p2,ncol=1)
+
+#Whittaker plots
+whitdf1<-mbcuttreedf[mbcuttreedf$KOMMUNENUM!=1857 & mbcuttreedf$KOMMUNENUM!=1874 & mbcuttreedf$KOMMUNENUM!=1841,]
+whitdf<-whitdf1@data
+require(car)
+ellipse49<-with(whitdf[whitdf$cm1.1949%in%c(1,4,5,6,7),],dataEllipse(meanannprecip,meansumtemp,as.factor(cm1.1949),plot.points=FALSE,levels=c(0.90),col=cp1[cm1.1949]))
+ellipse15<-with(whitdf[whitdf$cm1.2015%in%c(2,3,5,6,7),],dataEllipse(meanannprecip,meansumtemp,as.factor(cm1.2015),plot.points=FALSE,levels=c(0.90),col=cp1[cm1.2015]))
+par(mfrow=c(1,2))
+par(oma=c(1,1,1,1))
+par(mar=c(5,5,1,1))
+plot(whitdf$meanannprecip,whitdf$meansumtemp/10,col=cp1[whitdf$cm1.1949],pch=16,xlab='Annual precipitation',ylab='Mean summer temperature')
+#polygon(ellipse49[[1]],border=cp1[1],lwd=2)
+#polygon(ellipse49[[2]],border=cp1[4],lwd=2)
+#polygon(ellipse49[[3]],border=cp1[5],lwd=2)
+#polygon(ellipse49[[4]],border=cp1[6],lwd=2)
+#polygon(ellipse49[[5]],border=cp1[7],lwd=2)
+plot(whitdf$meanannprecip,whitdf$meansumtemp/10,col=cp1[whitdf$cm1.2015],pch=16,xlab='Annual precipitation',ylab='Mean summer temperature')
+#polygon(ellipse15[[1]],border=cp1[2],lwd=2)
+#polygon(ellipse15[[2]],border=cp1[3],lwd=2)
+#polygon(ellipse15[[3]],border=cp1[5],lwd=2)
+#polygon(ellipse15[[4]],border=cp1[6],lwd=2)
+#polygon(ellipse15[[5]],border=cp1[7],lwd=2)
 
 
 # Ordinations -------------------------------------------------------------
