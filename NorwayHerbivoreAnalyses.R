@@ -539,15 +539,16 @@ dm1<-vegdist(mb1[,c(4:10,13,14,16)])
 #Hierarchical clustering
 hm1<-hclust(dm1)
 hm2<-hclust(dm1,method='ward.D')
-plot(hm1,labels=metabolicbiomass$knr2017[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841])
+plot(hm2,labels=metabolicbiomass$knr2017[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841])
 #Cut tree
 #How many clusters?
-indexchoice<-'cindex'
-methodchoice<-'complete'
-nclust<-NbClust(dm1,method=methodchoice,min.nc=2,max.nc=12,index=indexchoice)
-nclust$Best.nc ###8
+indexchoice<-'kl'#'cindex'
+methodchoice<-'ward.D' #'complete'
 
-mb1$cm1<-cutree(hm1,k=8)
+nclust<-NbClust(dm1,method=methodchoice,min.nc=2,max.nc=12,index=indexchoice)
+nclust$Best.nc ###5
+
+mb1$cm1<-cutree(hm2,k=5)
 write.table(mb1,'KommuneClust.csv')
 
 mbcutwide<-reshape(mb1[,c(1:3,21)],timevar='Year',direction='wide',idvar='knr2017',drop='kommune')
@@ -563,21 +564,25 @@ barplot(t(herbclusts[,2:11]),legend=T,names.arg=herbclusts$Group.1,las=1,args.le
         xlab='Cluster')
 title(ylab=expression('Metabolic biomass kg km'^-2),line=2.5)
 
-clusternames<-c('Cattle/Deer','Roe deer','Moose','Cattle/Sheep','Sheep/Reindeer','Sheep/Red deer','S-d reindeer','High sheep')
-
+#clusternames<-c('Cattle/Deer','Roe deer','Moose','Cattle/Sheep','Sheep/Reindeer','Sheep/Red deer','S-d reindeer','High sheep')
+clustname5<-c('Cattle','Moose and roe deer','Mixed','Sheep & red deer','SD reindeer')
 #With seperate axis for cluster8
 tiff(width=7,height=5,units='in',res=100,'NorwayHerbivoreClusters.tif')
-funprop<-function(x)x/max(x)
-app1<-apply(herbclusts[,2:11],MARGIN=1,FUN=funprop)
-par(mar=c(5,5,5,3))
-barplot(app1,legend=T,names.arg=herbclusts$Group.1,las=1,args.legend=list(x=12,y=2.7,title='Species',cex=0.8,bg=0),col=c(colsR[1:5],1,greys[5:1]),
-        xlab='Cluster',yaxt='n')+
-title(ylab=expression('Metabolic biomass kg km'^-2),line=2.5)+
-axis(2, at = seq(0, max(colSums(app1)[1:7]), length.out = 5),las=1,
-     labels = round(seq(0, max(herbclusts[1:7,2:11]), length.out = 5),-1))+
-axis(4, at = seq(0, max(colSums(app1)[8]), length.out = 5),las=1,
-     labels = round(seq(0, max(herbclusts[8,2:11]), length.out = 5),-1))+
-arrows(8.5,0,8.5,1.5,code=0,lty=2,lwd=2)
+#funprop<-function(x)x/max(x)
+#app1<-apply(herbclusts[,2:11],MARGIN=1,FUN=funprop)
+par(mar=c(5,5,5,5))
+barplot(t(herbclusts[,2:11]),legend=T,names.arg=herbclusts$Group.1,las=1,args.legend=list(x=7.2,y=350,title='Species',cex=0.8),col=c(colsR[1:5],1,greys[5:1]),
+        xlab='Cluster')
+title(ylab=expression('Metabolic biomass kg km'^-2),line=2.5)
+
+#barplot(app1,legend=T,names.arg=herbclusts$Group.1,las=1,args.legend=list(x=12,y=2.7,title='Species',cex=0.8,bg=0),col=c(colsR[1:5],1,greys[5:1]),
+#        xlab='Cluster',yaxt='n')+
+#title(ylab=expression('Metabolic biomass kg km'^-2),line=2.5)+
+#axis(2, at = seq(0, max(colSums(app1)[1:7]), length.out = 5),las=1,
+#     labels = round(seq(0, max(herbclusts[1:7,2:11]), length.out = 5),-1))+
+#axis(4, at = seq(0, max(colSums(app1)[8]), length.out = 5),las=1,
+#     labels = round(seq(0, max(herbclusts[8,2:11]), length.out = 5),-1))+
+#arrows(8.5,0,8.5,1.5,code=0,lty=2,lwd=2)
 dev.off()
 
 #Make dataframe of props
@@ -604,16 +609,20 @@ doubleYScale(p17,p8)
 
 #Correspondance plot
 yrs<-c(1949,1959,1969,1979,1989,1999,2009,2015)
-cp1<-brewer.pal(8,'Dark2')
+cp1<-brewer.pal(5,'Dark2')
 p1<-levelplot(mb1$cm1~mb1$Year+as.factor(mb1$knr2017),col.regions=cp1,cuts=7,yaxt='n',scales=list(y=list(at=0),x=list(at=yrs)),
           colorkey=list(lables=list(labels=clusternames)),ylab='Municipality',xlab='Year')
 
 #Plot distribution of clusters
 
-tiff(width=10,height=9,units='in',res=100,'HerbivoreClusterDistribution.tif')
-p2<-spplot(mbcuttreedf,c('cm1.1949','cm1.1959','cm1.1969','cm1.1979','cm1.1989','cm1.1999','cm1.2009','cm1.2015'),cuts=7,
-       names.attr=c(1949,1959,1969,1979,1989,1999,2009,2015),col=NA,col.regions=cp1,as.table=T,colorkey=list(labels=list(labels=clusternames)))+
+tiff(width=9,height=5,units='in',res=100,'HerbivoreClusterDistribution.tif')
+#p2<-spplot(mbcuttreedf,c('cm1.1949','cm1.1959','cm1.1969','cm1.1979','cm1.1989','cm1.1999','cm1.2009','cm1.2015'),cuts=4,
+#       names.attr=c(1949,1959,1969,1979,1989,1999,2009,2015),col=NA,col.regions=cp1,as.table=T)#,colorkey=list(labels=list(labels=clusternames)))+
+#  layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
+p2<-spplot(mbcuttreedf,c('cm1.1949','cm1.1969','cm1.2015'),cuts=4,
+       names.attr=c(1949,1969,2015),col=NA,col.regions=cp1,as.table=T,colorkey=list(labels=list(labels=1:5,at=1:5,title=expression('Cluster'))))+#,colorkey=list(labels=list(labels=clusternames)))+
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
+p2
 dev.off()
 
 #grid.arrange(p0,p1,p2,ncol=1)
@@ -622,25 +631,30 @@ dev.off()
 whitdf1<-mbcuttreedf[mbcuttreedf$KOMMUNENUM!=1857 & mbcuttreedf$KOMMUNENUM!=1874 & mbcuttreedf$KOMMUNENUM!=1841,]
 whitdf<-whitdf1@data
 require(car)
-ellipse49<-with(whitdf[whitdf$cm1.1949%in%c(1,4,5,6,7),],dataEllipse(meanannprecip,meansumtemp,as.factor(cm1.1949),plot.points=FALSE,levels=c(0.90),col=cp1[cm1.1949]))
-ellipse15<-with(whitdf[whitdf$cm1.2015%in%c(2,3,5,6,7),],dataEllipse(meanannprecip,meansumtemp,as.factor(cm1.2015),plot.points=FALSE,levels=c(0.90),col=cp1[cm1.2015]))
-par(mfrow=c(1,2))
+#Number of kommune in each cluster
+summary(as.factor(whitdf$cm1.1949))
+summary(as.factor(whitdf$cm1.2015))
+clustsel49<-as.numeric(levels(as.factor(whitdf$cm1.1949))[which(summary(as.factor(whitdf$cm1.1949))>10)])
+clustsel69<-as.numeric(levels(as.factor(whitdf$cm1.1969))[which(summary(as.factor(whitdf$cm1.1969))>10)])
+clustsel15<-as.numeric(levels(as.factor(whitdf$cm1.2015))[which(summary(as.factor(whitdf$cm1.2015))>10)])
+ellipse49<-with(whitdf[whitdf$cm1.1949%in%clustsel49,],dataEllipse(meanannprecip,meansumtemp/10,as.factor(cm1.1949),plot.points=FALSE,levels=c(0.75),col=cp1[cm1.1949]))
+ellipse69<-with(whitdf[whitdf$cm1.1969%in%clustsel69,],dataEllipse(meanannprecip,meansumtemp/10,as.factor(cm1.1969),plot.points=FALSE,levels=c(0.75),col=cp1[cm1.1969]))
+ellipse15<-with(whitdf[whitdf$cm1.2015%in%clustsel15,],dataEllipse(meanannprecip,meansumtemp/10,as.factor(cm1.2015),plot.points=FALSE,levels=c(0.75),col=cp1[cm1.2015]))
+tiff('WhittakerPlots.tif',width=9,height=5,units='in',res=100)
+par(mfrow=c(1,3))
 par(oma=c(1,1,1,1))
 par(mar=c(5,5,1,1))
-plot(whitdf$meanannprecip,whitdf$meansumtemp/10,col=cp1[whitdf$cm1.1949],pch=16,xlab='Annual precipitation',ylab='Mean summer temperature')
-#polygon(ellipse49[[1]],border=cp1[1],lwd=2)
-#polygon(ellipse49[[2]],border=cp1[4],lwd=2)
-#polygon(ellipse49[[3]],border=cp1[5],lwd=2)
-#polygon(ellipse49[[4]],border=cp1[6],lwd=2)
-#polygon(ellipse49[[5]],border=cp1[7],lwd=2)
-plot(whitdf$meanannprecip,whitdf$meansumtemp/10,col=cp1[whitdf$cm1.2015],pch=16,xlab='Annual precipitation',ylab='Mean summer temperature')
-#polygon(ellipse15[[1]],border=cp1[2],lwd=2)
-#polygon(ellipse15[[2]],border=cp1[3],lwd=2)
-#polygon(ellipse15[[3]],border=cp1[5],lwd=2)
-#polygon(ellipse15[[4]],border=cp1[6],lwd=2)
-#polygon(ellipse15[[5]],border=cp1[7],lwd=2)
-
-
+plot(whitdf$meanannprecip,whitdf$meansumtemp/10,col=cp1[whitdf$cm1.1949],pch=16,xlab='Annual precipitation (mm)',ylab=expression('Mean summer temperature'~(degree~C)),las=1,main='1949')
+for(i in 1:length(clustsel49)){print(i)
+    polygon(ellipse49[[i]],border=cp1[clustsel49[i]],lwd=2)  }
+plot(whitdf$meanannprecip,whitdf$meansumtemp/10,col=cp1[whitdf$cm1.1969],pch=16,xlab='Annual precipitation (mm)',ylab=expression('Mean summer temperature'~(degree~C)),las=1,main='1969')
+for(i in 1:length(clustsel69)){print(i)
+  polygon(ellipse69[[i]],border=cp1[clustsel69[i]],lwd=2)  }
+plot(whitdf$meanannprecip,whitdf$meansumtemp/10,col=cp1[whitdf$cm1.2015],pch=16,xlab='Annual precipitation (mm)',ylab=expression('Mean summer temperature'~(degree~C)),las=1,main='2015')
+for(i in 1:length(clustsel15)){print(i)
+  polygon(ellipse15[[i]],border=cp1[clustsel15[i]],lwd=2)  }
+legend('topr',pch=16,col=cp1[1:5],paste(1:5),ncol=2,title='Cluster',cex=0.8)
+dev.off()
 # Ordinations -------------------------------------------------------------
 # cca1<-cca(metabolicbiomass[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841,c(4:10,13,14,16)])
 # plot(cca1)
@@ -707,6 +721,7 @@ ordiarrows(mds1,mx1$knr2017,col=levels(as.factor(mx1$Year)),startmark=1)
 #Fitting clusters to MDS
 mdsClust<-metaMDS(mb1[mb1$knr2017!=1857 & mb1$knr2017!=1874 & mb1$knr2017!=1841,c(4:10,13,14,16)])
 e2<-envfit(mdsClust~as.factor(mb1$Year))
+e3<-envfit(mdsClust~as.factor(mb1$YearRegion))
 tiff(width=6,height=6,units='in',res=100,'NorwayHerbivoreClusterNMDS.tif')
 plot(mdsClust,col=mb1$cm1,type='n')
 cexes<-seq(0.8,0.2,length.out=8)
