@@ -646,51 +646,31 @@ par(mar=c(5,5,1,1))
 plot(whitdf$meanannprecip,whitdf$meansumtemp/10,col=cp1[whitdf$cm1.1949],pch=16,xlab='Annual precipitation (mm)',ylab=expression('Mean summer temperature'~(degree~C)),las=1,main='1949')
 for(i in 1:length(clustsel49)){print(i)
     polygon(ellipse49[[i]],border=cp1[clustsel49[i]],lwd=2)  }
+legend('topr',pch=16,col=cp1[1:5],clustname5,ncol=2,title='Assemblage',cex=0.8)
 plot(whitdf$meanannprecip,whitdf$meansumtemp/10,col=cp1[whitdf$cm1.1969],pch=16,xlab='Annual precipitation (mm)',ylab=expression('Mean summer temperature'~(degree~C)),las=1,main='1969')
 for(i in 1:length(clustsel69)){print(i)
   polygon(ellipse69[[i]],border=cp1[clustsel69[i]],lwd=2)  }
 plot(whitdf$meanannprecip,whitdf$meansumtemp/10,col=cp1[whitdf$cm1.2015],pch=16,xlab='Annual precipitation (mm)',ylab=expression('Mean summer temperature'~(degree~C)),las=1,main='2015')
 for(i in 1:length(clustsel15)){print(i)
   polygon(ellipse15[[i]],border=cp1[clustsel15[i]],lwd=2)  }
-legend('topr',pch=16,col=cp1[1:5],clustname5,ncol=2,title='Assemblage',cex=0.8)
 dev.off()
 
 #Whittaker lattice
-library(latticeExtra)
-xyplot(whitdf$meansumtemp/10~whitdf$meanannprecip,col=cp1[whitdf$cm1.1949],pch=16,xlab='Annual precipitation (mm)',ylab=expression('Mean summer temperature'~(degree~C)),las=1,main='1949')
-for(i in 1:length(clustsel49)){print(i)
-  polygon(ellipse49[[i]],border=cp1[clustsel49[i]],lwd=2)  }
-
-pr1<-xyplot(meansumtemp/10~meanannprecip, groups = cm1.1949, data = whitdf,
-       scales = "free",xlab='Annual precipitation (mm)',ylab=expression('Mean summer temperature'~(degree~C)),
-       par.settings = list(superpose.symbol = list(pch = 18, cex = 0.9,
-                                                   col = cp1,
-                                                   superpose.line = list(lwd=2))),
-       panel = function(x, y, ...) {
-         panel.xyplot(x, y, ...)
-         panel.ellipse(x, y, col = cp1, level=0.75,
-                       lwd = c(5, 5, 5), ...)})
-pr2<-xyplot(meansumtemp/10~meanannprecip, groups = cm1.1969, data = whitdf,
-            scales = "free",xlab='Annual precipitation (mm)',ylab=expression('Mean summer temperature'~(degree~C)),
-            par.settings = list(superpose.symbol = list(pch = 18, cex = 0.9,
-                                                        col = cp1,
-                                                        superpose.line = list(lwd=2))),
-            panel = function(x, y, ...) {
-              panel.xyplot(x, y, ...)
-              panel.ellipse(x, y, col = cp1, level=0.75,
-                            lwd = c(5, 5, 5), ...)})
-pr3<-xyplot(meansumtemp/10~meanannprecip, groups = cm1.2015, data = whitdf,
-            scales = "free",xlab='Annual precipitation (mm)',ylab=expression('Mean summer temperature'~(degree~C)),
-            par.settings = list(superpose.symbol = list(pch = 18, cex = 0.9,
-                                                        col = cp1,
-                                                        superpose.line = list(lwd=2))),
-            panel = function(x, y, ...) {
-              panel.xyplot(x, y, ...)
-              panel.ellipse(x, y, col = cp1, level=0.75,
-                            lwd = c(5, 5, 5), ...)})
-
-grid.arrange(p2,pr1,pr2,pr3,ncol=3)
-
+# library(latticeExtra)
+# mb1$mst<-kommetbio$meansumtemp[kommetbio$KOMMUNENUM%in%mb1$knr2017]
+# mb1$map<-kommetbio$meanannprecip[kommetbio$KOMMUNENUM%in%mb1$knr2017]
+# mbyr<-mb1[mb1$Year%in%c(1949,1969,2015),]
+# pr1<-xyplot(mst/10~map|as.factor(Year),groups=cm1,data=mbyr,
+#             strip = strip.custom(var.name = levels(as.factor(mbyr$Year))),
+#        scales = "free",xlab='Annual precipitation (mm)',ylab=expression('Mean summer temperature'~(degree~C)),
+#        par.settings = list(superpose.symbol = list(pch = 18, cex = 0.9,
+#                                                    col = cp1,
+#                                                    superpose.line = list(lwd=2))),
+#        panel = function(x, y, ...) {
+#          panel.xyplot(x, y, ...)
+#          panel.ellipse(x, y, data=mbyr,col = cp1, level=0.68,
+#                         ...)})
+# pr1
 # Ordinations -------------------------------------------------------------
 # cca1<-cca(metabolicbiomass[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841,c(4:10,13,14,16)])
 # plot(cca1)
