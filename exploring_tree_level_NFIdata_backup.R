@@ -265,7 +265,7 @@ View(Areadata)
 Areadata2 <- select(Areadata, 
                     FLATEID, FYLNR, KOMNR, aar, syklus = takst, Rognprha)
 # Selects relavant columns from flatedata
-Areadata3 <- Areadata2[Areadata2$syklus==6 | Areadata2$syklus==10, ]
+Areadata3 <- Areadata2[Areadata2$syklus==7 | Areadata2$syklus==10, ]
 # sletter Areadata og Areadata2
 rm(Areadata);rm(Areadata2)
 
@@ -279,14 +279,66 @@ BrowvsGraz2 <- select(BrowvsGraz,
                       aar=AAR,
                       Browsing="ABS BROW")
 # sletter BrowsvsGraz
-rm(BrowvsGraz)                 
+rm(BrowvsGraz)   
+
+
+# Merge the two datasets
+head(Areadata3)
+table(BrowvsGraz2$aar)
+BrowvsGraz2 <- BrowvsGraz2[BrowvsGraz2$aar == 1989 | BrowvsGraz2$aar == 2009,]
+BrowvsGraz2$syklus <- ifelse(BrowvsGraz2$aar == 1989, 7, 10)
+table(BrowvsGraz2$syklus)
+
+# Move "Browsing" to areadata
+Areadata3$Browsing<- BrowvsGraz2$Browsing[match(
+              paste0(Areadata3$KOMNR, Areadata3$syklus),
+              paste0(BrowvsGraz2$KOMNR, BrowvsGraz2$syklus))]
+# double checking that each kommune get gifferent values for 'browsing' for each cycle
+table(Areadata3$KOMNR, Areadata3$syklus)
+head(Areadata3[Areadata3$KOMNR == 104,],20)
+
+table(Areadata3$syklus)
+Areadata3$syklus_f <- ifelse(Areadata3$syklus == 7, "seven", "ten")
+tapply(Areadata3$Rognprha, Areadata3$syklus_f, FUN = sum,na.rm = T)
+tapply(Areadata3$Rognprha, Areadata3$syklus_f, FUN = mean,na.rm = T)
+tapply(Areadata3$Rognprha, Areadata3$syklus_f, FUN = max,na.rm = T)
+
+boxplot(log(Areadata3$Rognprha+1)~Areadata3$syklus_f)
+
+
+
 # Make a new variable; calculate syklus 10 - syklus 6####
-
 library(reshape2)
-
 Areadata4 <- dcast(data = Areadata3,
-                 FLATEID ~ syklus,
+                 FLATEID + KOMNR ~ syklus_f,
                  value.var = "Rognprha",
                  fun.aggregate = mean)
+head(Areadata4)
+tail(Areadata4, 20)
 
-willow2$diff <- willow2$`10` - willow2$`9`            
+Areadata4$diff_rogn <- Areadata4$ten - Areadata4$seven            
+
+temp <- dcast(data = Areadata3,
+                   FLATEID + KOMNR ~ syklus_f,
+                   value.var = "Browsing",
+                   fun.aggregate = mean)
+head(temp)
+Areadata4$diff_browsing <- temp$ten - temp$seven            
+Areadata4$browsing_seven <- temp$seven            
+
+
+plot(Areadata4$diff_browsing,Areadata4$diff_rogn)
+
+Areadata4 <- Areadata4[Areadata4$diff_rogn  < 100000,]
+Areadata4 <- Areadata4[Areadata4$diff_rogn  > -100000,]
+
+
+Areadata_kom <- aggregate(data = Areadata4,
+                          cbind(diff_rogn, diff_browsing, browsing_seven) ~ KOMNR,
+                          FUN = mean,
+                          na.rm= T)
+head(Areadata_kom)
+
+
+plot(Areadata_kom$diff_browsing, Areadata_kom$diff_rogn)
+plot(Areadata_kom$browsing_seven, Areadata_kom$diff_rogn)
