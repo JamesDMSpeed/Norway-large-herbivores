@@ -187,50 +187,50 @@ spplot(kommetbio,c('Cattle.1949','Cattle.1969','Cattle.2015'),at=cattle_qt$brks,
 #All years
 allyrs<-c(1949,1959,1969,1979,1989,1999,2009,2015)
 
-tiff(width=10,height=9,units='in',res=100,'TotalMetBio.tif')
+tiff(width=8,height=5,units='in',res=100,'TotalMetBio.tif')
 spplot(kommetbio,c('Total.1949','Total.1959','Total.1969','Total.1979','Total.1989','Total.1999','Total.2009','Total.2015'),
        at=total_qt$brks,col.regions=colpal,names.attr=allyrs,main=expression('Total metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T,
-       colorkey=list(at=log10(total_qt$brks+1),labels=list(labels=round(total_qt$brks,0.1),at=log10(total_qt$brks+1),cex=0.7)))+#As.table draws from topl ratther than bottoml
+       colorkey=list(title=expression('Metabolic biomass kg km'^-2),at=log10(total_qt$brks+1),labels=list(labels=round(total_qt$brks,0.1),at=log10(total_qt$brks+1),cex=0.7)))  #+#As.table draws from topl ratther than bottoml
 layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
-tiff(width=10,height=9,units='in',res=100,'MooseMetBio.tif')
+tiff(width=8,height=5,units='in',res=100,'MooseMetBio.tif')
 spplot(kommetbio,c('Moose.1949','Moose.1959','Moose.1969','Moose.1979','Moose.1989','Moose.1999','Moose.2009','Moose.2015'),
        cuts=8,col.regions=colpal,names.attr=allyrs,main=expression('Moose metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T)+#As.table draws from topl ratther than bottoml
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
-tiff(width=10,height=9,units='in',res=100,'Red_deerMetBio.tif')
+tiff(width=8,height=5,units='in',res=100,'Red_deerMetBio.tif')
 spplot(kommetbio,c('Red_deer.1949','Red_deer.1959','Red_deer.1969','Red_deer.1979','Red_deer.1989','Red_deer.1999','Red_deer.2009','Red_deer.2015'),
        cuts=8,col.regions=colpal,names.attr=allyrs,main=expression('Red deer metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T)+#As.table draws from topl ratther than bottoml
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
-tiff(width=10,height=9,units='in',res=100,'Roe_deerMetBio.tif')
+tiff(width=8,height=5,units='in',res=100,'Roe_deerMetBio.tif')
 spplot(kommetbio,c('Roe_deer.1949','Roe_deer.1959','Roe_deer.1969','Roe_deer.1979','Roe_deer.1989','Roe_deer.1999','Roe_deer.2009','Roe_deer.2015'),
        cuts=8,col.regions=colpal,names.attr=allyrs,main=expression('Roe deer metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T)+#As.table draws from topl ratther than bottoml
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
-tiff(width=10,height=9,units='in',res=100,'Musk_oxMetBio.tif')
+tiff(width=8,height=5,units='in',res=100,'Musk_oxMetBio.tif')
 spplot(kommetbio,c('Musk_ox.1949','Musk_ox.1959','Musk_ox.1969','Musk_ox.1979','Musk_ox.1989','Musk_ox.1999','Musk_ox.2009','Musk_ox.2015'),
        cuts=8,col.regions=colpal,names.attr=allyrs,main=expression('Musk ox metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T)+#As.table draws from topl ratther than bottoml
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
-tiff(width=10,height=9,units='in',res=100,'Wild_reindeerMetBio.tif')
+tiff(width=8,height=5,units='in',res=100,'Wild_reindeerMetBio.tif')
 spplot(kommetbio,c('Wild_reindeer.1949','Wild_reindeer.1959','Wild_reindeer.1969','Wild_reindeer.1979','Wild_reindeer.1989','Wild_reindeer.1999','Wild_reindeer.2009','Wild_reindeer.2015'),
        cuts=8,col.regions=colpal,names.attr=allyrs,main=expression('Wild reindeer metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T)+#As.table draws from topl ratther than bottoml
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
-tiff(width=10,height=9,units='in',res=100,'Semi_domestic_reindeerMetBio.tif')
+tiff(width=8,height=5,units='in',res=100,'Semi_domestic_reindeerMetBio.tif')
 spplot(kommetbio,c('Semi_domestic_reindeer.1949','Semi_domestic_reindeer.1959','Semi_domestic_reindeer.1969','Semi_domestic_reindeer.1979','Semi_domestic_reindeer.1989','Semi_domestic_reindeer.1999','Semi_domestic_reindeer.2009','Semi_domestic_reindeer.2015'),
        cuts=8,col.regions=colpal,names.attr=allyrs,main=expression('Semi domestic reindeer metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T)+#As.table draws from topl ratther than bottoml
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
-tiff(width=10,height=9,units='in',res=100,'SheepMetBio.tif')
+tiff(width=8,height=5,units='in',res=100,'SheepMetBio.tif')
 sheep_qt <- classIntervals(kommetbio$Sheep.1949, n = 9)
 spplot(kommetbio,c('Sheep.1949','Sheep.1959','Sheep.1969','Sheep.1979','Sheep.1989','Sheep.1999','Sheep.2009','Sheep.2015'),
        at=sheep_qt$brks,col.regions=colpal,names.attr=allyrs,main=expression('Sheep metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T,
@@ -239,7 +239,7 @@ spplot(kommetbio,c('Sheep.1949','Sheep.1959','Sheep.1969','Sheep.1979','Sheep.19
 dev.off()
 
 
-tiff(width=10,height=9,units='in',res=100,'CattleMetBio.tif')
+tiff(width=8,height=5,units='in',res=100,'CattleMetBio.tif')
 cattle_qt <- classIntervals(kommetbio$Cattle.1949, n = 9)
 spplot(kommetbio,c('Cattle.1949','Cattle.1959','Cattle.1969','Cattle.1979','Cattle.1989','Cattle.1999','Cattle.2009','Cattle.2015'),
        at=cattle_qt$brks,col.regions=colpal,names.attr=allyrs,main=expression('Cattle metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T,
@@ -247,7 +247,7 @@ spplot(kommetbio,c('Cattle.1949','Cattle.1959','Cattle.1969','Cattle.1979','Catt
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
-tiff(width=10,height=9,units='in',res=100,'GoatMetBio.tif')
+tiff(width=8,height=5,units='in',res=100,'GoatMetBio.tif')
 Goat_qt <- classIntervals(kommetbio$Goat.1949, n = 7,'equal')
 spplot(kommetbio,c('Goat.1949','Goat.1959','Goat.1969','Goat.1979','Goat.1989','Goat.1999','Goat.2009','Goat.2015'),
        at=Goat_qt$brks,col.regions=colpal,names.attr=allyrs,main=expression('Goat metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T,
@@ -255,7 +255,7 @@ spplot(kommetbio,c('Goat.1949','Goat.1959','Goat.1969','Goat.1979','Goat.1989','
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
-tiff(width=10,height=9,units='in',res=100,'HorseMetBio.tif')
+tiff(width=8,height=5,units='in',res=100,'HorseMetBio.tif')
 Horse_qt <- classIntervals(kommetbio$Horse.1949, n = 9)
 spplot(kommetbio,c('Horse.1949','Horse.1959','Horse.1969','Horse.1979','Horse.1989','Horse.1999','Horse.2009','Horse.2015'),
        at=Horse_qt$brks,col.regions=colpal,names.attr=allyrs,main=expression('Horse metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T,
@@ -263,7 +263,28 @@ spplot(kommetbio,c('Horse.1949','Horse.1959','Horse.1969','Horse.1979','Horse.19
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
+tiff(width=8,height=5,units='in',res=100,'WildlifeBio.tif')
+Wildlife_qt <- classIntervals(kommetbio$Wildlife.2015, n = 9)
+spplot(kommetbio,c('Wildlife.1949','Wildlife.1959','Wildlife.1969','Wildlife.1979','Wildlife.1989','Wildlife.1999','Wildlife.2009','Wildlife.2015'),
+       at=Wildlife_qt$brks,col.regions=colpal,names.attr=allyrs,main=expression('Wildlife metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T,
+       colorkey=list(at=log10(Wildlife_qt$brks+1),labels=list(labels=round(Wildlife_qt$brks,0.1),at=log10(Wildlife_qt$brks+1),cex=0.7)))+#As.table draws from topl ratther than bottoml
+  layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
+dev.off()
 
+tiff(width=8,height=5,units='in',res=100,'LivestockBio.tif')
+Livestock_qt <- classIntervals(kommetbio$Livestock.1949, n = 9)
+spplot(kommetbio,c('Livestock.1949','Livestock.1959','Livestock.1969','Livestock.1979','Livestock.1989','Livestock.1999','Livestock.2009','Livestock.2015'),
+       at=Livestock_qt$brks,col.regions=colpal,names.attr=allyrs,main=expression('Livestock metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T,
+       colorkey=list(at=log10(Livestock_qt$brks+1),labels=list(labels=round(Livestock_qt$brks,0.1),at=log10(Livestock_qt$brks+1),cex=0.7)))+#As.table draws from topl ratther than bottoml
+  layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
+dev.off()
+
+
+tiff(width=8,height=5,units='in',res=100,'WildProp.tif')
+spplot(kommetbio,c('WildProp.1949','WildProp.1959','WildProp.1969','WildProp.1979','WildProp.1989','WildProp.1999','WildProp.2009','WildProp.2015'),
+       cuts=8,col.regions=colpal,names.attr=allyrs,main=expression('Wildlife as a proportion of total biomass'),col=NA,as.table=T)+#As.table draws from topl ratther than bottoml
+  layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
+dev.off()
 
 # Summarising wildlife and livestock --------------------------------------
 
@@ -415,20 +436,23 @@ kommetbio$x<-cents[,1]
 kommetbio$y<-cents[,2]
 
 #Make dataframe including variables for modelling and xy coordinates
-aicdataframe<-data.frame(cbind(scale(kommetbio@data[,150:161]),kommetbio@data[,162:163]))
+aicdataframe<-data.frame(cbind(scale(kommetbio@data[,150:161]),kommetbio@data[,162:163],scale(kommetbio@data$y)))
 
 #Cross correlations between explanatory variables?
 panel.cor <- function(x, y, digits = 2, prefix = "", cex.cor, ...)
 {
   usr <- par("usr"); on.exit(par(usr))
   par(usr = c(0, 1, 0, 1))
-  r <- abs(cor(x, y))
+  r <- abs(cor(x, y,method='spearman'))
   txt <- format(c(r, 0.123456789), digits = digits)[1]
   txt <- paste0(prefix, txt)
   if(missing(cex.cor)) cex.cor <- 0.8/strwidth(txt)
   text(0.5, 0.5, txt, cex = cex.cor * r)
 }
-pairs(aicdataframe[,c(1:12,14)],upper.panel=panel.cor)
+
+tiff('PairPlot.tif',width=9,height=9,unit='in',res=150)
+pairs(aicdataframe[,c(2,3,6,7,8,10,11,15)],upper.panel=panel.cor,labels=c('Change in \n wildlife','Change in \n livestock','Agriculture','Forest','Open-natural\nvegetation', 'MST','MAP','Latitude'))
+dev.off()
 #MST correlated with elevation, 
 
 #Model averaging GLM
@@ -462,12 +486,13 @@ summary(modavgglm)
 lmR<-lm(otherveg~meansumtemp,data=aicdataframe)
 aicdataframe$otherveg_tempR<-residuals(lmR)
 #Residuals of latitude:temperature
-lmRlat<-lm(y~meansumtemp,data=aicdataframe)
+lmRlat<-lm(scale.kommetbio.data.y.~meansumtemp,data=aicdataframe)#Using scaled latitude
 aicdataframe$latitude_tempR<-residuals(lmRlat)
 
 
 #Model averaging GLS - accounting for spatial autocorrelation
 library(nlme)
+library(MuMIn)
 globmodgls<-gls(changeinwildlife~changeinlivestock+otherveg_tempR+agricultural+forest+meansumtemp+meanannprecip+latitude_tempR,
                 data=aicdataframe,na.action=na.fail,method='ML',
                 correlation=corExp(form=~x+y,nugget=T))
@@ -494,13 +519,15 @@ plotdf<-df2[order(df2$importance.modavggls.),]
 plotdf
 
 tiff('ImpMac.tif',width=6,height=4,units='in',res=100)
-par(oma=c(1,8,1,1))
+par(oma=c(1,10,1,1))
 par(mfrow=c(1,2))
 par(mar=c(5,0,1,1))
 par(xpd=T)
-barplot(plotdf$importance.modavggls.,beside=T,horiz=T,names.arg=plotdf$Row.names,las=1,xlab='Importance')
+#Change rownames
+plotdf$Row.names<-c('Forest','Latitude (R)','Change in livestock','Mean annual precipitation','Mean summer temperature','Agriculture','Open-natural vegetation (R)')
+barplot(plotdf$importance.modavggls.,beside=T,horiz=T,names.arg=plotdf$Row.names,las=1,xlab='Importance',cex.axis=0.8,cex.names=0.8,cex.lab=0.8)
 par(mar=c(5,1,1,1))
-b1<-barplot(plotdf[,2],horiz=T,col=F,border=F,xlim=c(-0.5,1.2),las=1,xlab='Model averaged coefficients')
+b1<-barplot(plotdf[,2],horiz=T,col=F,border=F,xlim=c(-0.5,1.2),las=1,xlab='Model averaged coefficients',cex.axis=0.8,cex.lab=0.8)
 points(plotdf[,2],b1,pch=16)
 arrows(plotdf[,2]+plotdf[,3],b1,plotdf[,2]-plotdf[,3],b1,code=3,angle=90,length=0.05)
 par(xpd=F)
@@ -619,7 +646,8 @@ tiff(width=9,height=5,units='in',res=100,'HerbivoreClusterDistribution.tif')
 #       names.attr=c(1949,1959,1969,1979,1989,1999,2009,2015),col=NA,col.regions=cp1,as.table=T)#,colorkey=list(labels=list(labels=clusternames)))+
 #  layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 p2<-spplot(mbcuttreedf,c('cm1.1949','cm1.1969','cm1.2015'),cuts=4,
-       names.attr=c(1949,1969,2015),col=NA,col.regions=cp1,as.table=T,colorkey=list(labels=list(labels=clustname5,at=1:5,title=expression('Cluster'))))+#,colorkey=list(labels=list(labels=clusternames)))+
+       names.attr=c(1949,1969,2015),col=NA,col.regions=cp1,as.table=T,
+       par.settings=list(strip.background=list(col=c('grey'))),colorkey=list(labels=list(labels=clustname5,at=1:5,title=expression('Cluster'))))+ #,colorkey=list(labels=list(labels=clusternames)))+
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 p2
 dev.off()
@@ -655,22 +683,51 @@ for(i in 1:length(clustsel15)){print(i)
   polygon(ellipse15[[i]],border=cp1[clustsel15[i]],lwd=2)  }
 dev.off()
 
-#Whittaker lattice
-# library(latticeExtra)
-# mb1$mst<-kommetbio$meansumtemp[kommetbio$KOMMUNENUM%in%mb1$knr2017]
-# mb1$map<-kommetbio$meanannprecip[kommetbio$KOMMUNENUM%in%mb1$knr2017]
-# mbyr<-mb1[mb1$Year%in%c(1949,1969,2015),]
-# pr1<-xyplot(mst/10~map|as.factor(Year),groups=cm1,data=mbyr,
-#             strip = strip.custom(var.name = levels(as.factor(mbyr$Year))),
-#        scales = "free",xlab='Annual precipitation (mm)',ylab=expression('Mean summer temperature'~(degree~C)),
-#        par.settings = list(superpose.symbol = list(pch = 18, cex = 0.9,
-#                                                    col = cp1,
-#                                                    superpose.line = list(lwd=2))),
-#        panel = function(x, y, ...) {
-#          panel.xyplot(x, y, ...)
-#          panel.ellipse(x, y, data=mbyr,col = cp1, level=0.68,
-#                         ...)})
-# pr1
+
+# #ggplot
+library(ggplot2)
+whitdf2<-reshape(whitdf[,c(159:165,167,172)],direction='long',varying=c("cm1.1949","cm1.1969","cm1.2015"))
+pwhit<-ggplot(whitdf2,aes(x= meanannprecip,y=meansumtemp/10,color=as.factor(cm1)) )+geom_point(size=0.5)+
+         scale_color_brewer(palette='Dark2',labels=clustname5,guide = guide_legend(reverse=TRUE,title=NULL))+
+         facet_grid(.~time)+ 
+         stat_ellipse(aes(x=meanannprecip,y=meansumtemp/10,group=as.factor(cm1)),type='t',level=0.75)+
+         ylab(expression("Mean summer temperature " ( degree*C))) + xlab("Annual precipitation (mm)")+
+         theme_bw()#+
+         #scale_y_continuous(position = "right")
+pwhit
+ 
+tiff('JointMapWhittaker.tif',width=9,height=8,units='in',res=100)
+grid.arrange(p2,pwhit)
+dev.off()
+
+
+#Plot all clusters in space
+tiff(width=8,height=5,units='in',res=100,'ClusterAllYrs.tif')
+spplot(mbcuttreedf,c('cm1.1949','cm1.1959','cm1.1969','cm1.1979','cm1.1989','cm1.1999','cm1.2009','cm1.2015'),cuts=4,
+           names.attr=allyrs,col=NA,col.regions=cp1,as.table=T,
+           par.settings=list(strip.background=list(col=c('grey'))),colorkey=list(labels=list(labels=clustname5,at=1:5,title=expression('Cluster'))))+ #,colorkey=list(labels=list(labels=clusternames)))+
+  layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
+dev.off()
+
+
+whitdf3<-reshape(whitdf[,c(159:172)],direction='long',varying=c('cm1.1949','cm1.1959','cm1.1969','cm1.1979','cm1.1989','cm1.1999','cm1.2009','cm1.2015'))
+pwhit_allyrs<-ggplot(whitdf3,aes(x= meanannprecip,y=meansumtemp/10,color=as.factor(cm1)) )+geom_point(size=0.5)+
+  scale_color_brewer(palette='Dark2',labels=clustname5,guide = guide_legend(reverse=TRUE,title=NULL))+
+  facet_grid(.~time)+ 
+  stat_ellipse(aes(x=meanannprecip,y=meansumtemp/10,group=as.factor(cm1)),type='t',level=0.75)+
+  ylab(expression("Mean summer temperature " ( degree*C))) + xlab("Annual precipitation (mm)")+
+  theme_bw()#+
+#scale_y_continuous(position = "right")
+tiff('whitakerallyrs.tif',width=8,height=5,units='in',res=150)
+pwhit_allyrs
+dev.off()
+
+tiff('JointMapWhittaker.tif',width=9,height=8,units='in',res=100)
+grid.arrange(p2,pwhit)
+dev.off()
+
+
+
 # Ordinations -------------------------------------------------------------
 # cca1<-cca(metabolicbiomass[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841,c(4:10,13,14,16)])
 # plot(cca1)
