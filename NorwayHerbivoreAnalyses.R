@@ -195,20 +195,29 @@ layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
 tiff(width=8,height=5,units='in',res=100,'MooseMetBio.tif')
+Moose_qt <- classIntervals(kommetbio$Moose.1989, n = 9,'equal')
 spplot(kommetbio,c('Moose.1949','Moose.1959','Moose.1969','Moose.1979','Moose.1989','Moose.1999','Moose.2009','Moose.2015'),
-       cuts=8,col.regions=colpal,names.attr=allyrs,main=expression('Moose metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T)+#As.table draws from topl ratther than bottoml
+       at=Moose_qt$brks,col.regions=colpal,names.attr=allyrs,main=expression('Moose metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T,
+       colorkey=list(at=(Moose_qt$brks),labels=list(labels=round(Moose_qt$brks,0.1),at=(Moose_qt$brks),cex=0.7)))+#As.table draws from topl ratther than bottoml
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
+
 tiff(width=8,height=5,units='in',res=100,'Red_deerMetBio.tif')
+Red_deer_qt <- classIntervals(kommetbio$Red_deer.1999, n = 9,'equal')
 spplot(kommetbio,c('Red_deer.1949','Red_deer.1959','Red_deer.1969','Red_deer.1979','Red_deer.1989','Red_deer.1999','Red_deer.2009','Red_deer.2015'),
-       cuts=8,col.regions=colpal,names.attr=allyrs,main=expression('Red deer metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T)+#As.table draws from topl ratther than bottoml
+       at=Red_deer_qt$brks,col.regions=colpal,names.attr=allyrs,main=expression('Red deer metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T,
+       colorkey=list(at=(Red_deer_qt$brks),labels=list(labels=round(Red_deer_qt$brks,0.1),at=(Red_deer_qt$brks),cex=0.7)))+#As.table draws from topl ratther than bottoml
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
+dev.off()
+
 dev.off()
 
 tiff(width=8,height=5,units='in',res=100,'Roe_deerMetBio.tif')
+Roe_deer_qt <- classIntervals(kommetbio$Roe_deer.2015, n = 9,'equal')
 spplot(kommetbio,c('Roe_deer.1949','Roe_deer.1959','Roe_deer.1969','Roe_deer.1979','Roe_deer.1989','Roe_deer.1999','Roe_deer.2009','Roe_deer.2015'),
-       cuts=8,col.regions=colpal,names.attr=allyrs,main=expression('Roe deer metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T)+#As.table draws from topl ratther than bottoml
+       at=Roe_deer_qt$brks,col.regions=colpal,names.attr=allyrs,main=expression('Roe deer metabolic biomass' ~(kg~km^{-2})),col=NA,as.table=T,
+       colorkey=list(at=(Roe_deer_qt$brks),labels=list(labels=round(Roe_deer_qt$brks,0.1),at=(Roe_deer_qt$brks),cex=0.7)))+#As.table draws from topl ratther than bottoml
   layer(sp.polygons(norwayP,lwd=0.5,col=grey(0.5)))
 dev.off()
 
@@ -713,7 +722,7 @@ dev.off()
 whitdf3<-reshape(whitdf[,c(159:172)],direction='long',varying=c('cm1.1949','cm1.1959','cm1.1969','cm1.1979','cm1.1989','cm1.1999','cm1.2009','cm1.2015'))
 pwhit_allyrs<-ggplot(whitdf3,aes(x= meanannprecip,y=meansumtemp/10,color=as.factor(cm1)) )+geom_point(size=0.5)+
   scale_color_brewer(palette='Dark2',labels=clustname5,guide = guide_legend(reverse=TRUE,title=NULL))+
-  facet_grid(.~time)+ 
+  facet_wrap(~time,nrow=2)+ 
   stat_ellipse(aes(x=meanannprecip,y=meansumtemp/10,group=as.factor(cm1)),type='t',level=0.75)+
   ylab(expression("Mean summer temperature " ( degree*C))) + xlab("Annual precipitation (mm)")+
   theme_bw()#+
