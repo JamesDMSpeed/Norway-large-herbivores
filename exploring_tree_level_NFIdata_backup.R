@@ -257,8 +257,10 @@ summary(willow3$diff)
 mean(willow3$diff, na.rm=T)
 sd(willow3$diff, na.rm=T)
 
-# Areadatafile ######
+# Areadatafile rogn ######
 library(readr)
+library(dplyr)
+
 Areadata <- read_delim("M:/Mine dokumenter/Moose/Beitetrykk_2017/Browsing/NFI/Trerekruttering 1986-2017 60-80 mmdbh.csv", 
                        ";", escape_double = FALSE, trim_ws = TRUE)
 View(Areadata)
@@ -342,3 +344,181 @@ head(Areadata_kom)
 
 plot(Areadata_kom$diff_browsing, Areadata_kom$diff_rogn)
 plot(Areadata_kom$browsing_seven, Areadata_kom$diff_rogn)
+
+# Areadatafile ######
+# Areadatafile osp ####
+library(readr)
+library(dplyr)
+
+Areadata <- read_delim("M:/Mine dokumenter/Moose/Beitetrykk_2017/Browsing/NFI/Trerekruttering 1986-2017 60-80 mmdbh.csv", 
+                       ";", escape_double = FALSE, trim_ws = TRUE)
+View(Areadata)
+Areadata12 <- select(Areadata, 
+                    FLATEID, FYLNR, KOMNR, aar, syklus = takst, Ospprha)
+# Selects relavant columns from flatedata
+Areadata13 <- Areadata12[Areadata12$syklus==6 | Areadata12$syklus==10, ]
+# sletter Areadata og Areadata2
+rm(Areadata);rm(Areadata12)
+
+# Get the file with absolute browsing data####
+library(readxl)
+BrowvsGraz <- read_excel("M:/Mine dokumenter/Moose/Beitetrykk_2017/Browsing/Browsing_final 0410/BrowvsGraz2910_final.xlsx")
+View(BrowvsGraz)
+# Selects relavant columns from BrowvsGraz
+BrowvsGraz2 <- select(BrowvsGraz,
+                      KOMNR=knr2017, 
+                      aar=AAR,
+                      Browsing="ABS BROW")
+# sletter BrowsvsGraz
+rm(BrowvsGraz)   
+
+
+# Merge the two datasets
+head(Areadata13)
+table(BrowvsGraz2$aar)
+BrowvsGraz2 <- BrowvsGraz2[BrowvsGraz2$aar == 1989 | BrowvsGraz2$aar == 2009,]
+BrowvsGraz2$syklus <- ifelse(BrowvsGraz2$aar == 1989, 6, 10)
+table(BrowvsGraz2$syklus)
+
+# Move "Browsing" to areadata
+Areadata13$Browsing<- BrowvsGraz2$Browsing[match(
+  paste0(Areadata13$KOMNR, Areadata13$syklus),
+  paste0(BrowvsGraz2$KOMNR, BrowvsGraz2$syklus))]
+# double checking that each kommune get gifferent values for 'browsing' for each cycle
+table(Areadata13$KOMNR, Areadata13$syklus)
+head(Areadata13[Areadata13$KOMNR == 104,],20)
+
+table(Areadata13$syklus)
+Areadata13$syklus_f <- ifelse(Areadata13$syklus == 6, "six", "ten")
+tapply(Areadata13$Ospprha, Areadata13$syklus_f, FUN = sum,na.rm = T)
+tapply(Areadata13$Ospprha, Areadata13$syklus_f, FUN = mean,na.rm = T)
+tapply(Areadata13$Ospprha, Areadata13$syklus_f, FUN = max,na.rm = T)
+
+boxplot(log(Areadata13$Ospprha+1)~Areadata13$syklus_f)
+
+
+
+# Make a new variable; calculate syklus 10 - syklus 6####
+library(reshape2)
+Areadata14 <- dcast(data = Areadata13,
+                   FLATEID + KOMNR ~ syklus_f,
+                   value.var = "Ospprha",
+                   fun.aggregate = mean)
+head(Areadata14)
+tail(Areadata14, 20)
+
+Areadata14$diff_Osp <- Areadata14$ten - Areadata14$six            
+
+temp <- dcast(data = Areadata13,
+              FLATEID + KOMNR ~ syklus_f,
+              value.var = "Browsing",
+              fun.aggregate = mean)
+head(temp)
+Areadata14$diff_browsing <- temp$ten - temp$six            
+Areadata14$browsing_six <- temp$six            
+
+
+plot(Areadata14$diff_browsing,Areadata14$diff_Osp)
+
+Areadata14 <- Areadata14[Areadata14$diff_Osp  < 100000,]
+
+
+Areadata_kom <- aggregate(data = Areadata14,
+                          cbind(diff_Osp, diff_browsing, browsing_six) ~ KOMNR,
+                          FUN = mean,
+                          na.rm= T)
+head(Areadata_kom)
+
+Areadata_kom <- Areadata_kom[Areadata_kom$diff_Osp  > -600,]
+
+plot(Areadata_kom$diff_browsing, Areadata_kom$diff_Osp)
+plot(Areadata_kom$browsing_six, Areadata_kom$diff_Osp)
+
+
+# Areadatafile Selje ####
+library(readr)
+library(dplyr)
+
+Areadata <- read_delim("M:/Mine dokumenter/Moose/Beitetrykk_2017/Browsing/NFI/Trerekruttering 1986-2017 60-80 mmdbh.csv", 
+                       ";", escape_double = FALSE, trim_ws = TRUE)
+View(Areadata)
+Areadata22 <- select(Areadata, 
+                     FLATEID, FYLNR, KOMNR, aar, syklus = takst, Seljeprha)
+# Selects relavant columns from flatedata
+Areadata23 <- Areadata22[Areadata22$syklus==7 | Areadata12$syklus==10, ]
+# sletter Areadata og Areadata22
+rm(Areadata);rm(Areadata22)
+
+# Get the file with absolute browsing data####
+library(readxl)
+BrowvsGraz <- read_excel("M:/Mine dokumenter/Moose/Beitetrykk_2017/Browsing/Browsing_final 0410/BrowvsGraz2910_final.xlsx")
+View(BrowvsGraz)
+# Selects relavant columns from BrowvsGraz
+BrowvsGraz2 <- select(BrowvsGraz,
+                      KOMNR=knr2017, 
+                      aar=AAR,
+                      Browsing="ABS BROW")
+# sletter BrowsvsGraz
+rm(BrowvsGraz)   
+
+
+# Merge the two datasets
+head(Areadata23)
+table(BrowvsGraz2$aar)
+BrowvsGraz2 <- BrowvsGraz2[BrowvsGraz2$aar == 1989 | BrowvsGraz2$aar == 2009,]
+BrowvsGraz2$syklus <- ifelse(BrowvsGraz2$aar == 1989, 7, 10)
+table(BrowvsGraz2$syklus)
+
+# Move "Browsing" to areadata
+Areadata23$Browsing<- BrowvsGraz2$Browsing[match(
+  paste0(Areadata23$KOMNR, Areadata23$syklus),
+  paste0(BrowvsGraz2$KOMNR, BrowvsGraz2$syklus))]
+# double checking that each kommune get gifferent values for 'browsing' for each cycle
+table(Areadata23$KOMNR, Areadata23$syklus)
+head(Areadata23[Areadata23$KOMNR == 104,],20)
+
+table(Areadata23$syklus)
+Areadata23$syklus_f <- ifelse(Areadata23$syklus == 7, "seven", "ten")
+tapply(Areadata23$Seljeprha, Areadata23$syklus_f, FUN = sum,na.rm = T)
+tapply(Areadata23$Seljeprha, Areadata23$syklus_f, FUN = mean,na.rm = T)
+tapply(Areadata23$Seljeprha, Areadata23$syklus_f, FUN = max,na.rm = T)
+
+boxplot(log(Areadata23$Seljeprha+1)~Areadata23$syklus_f)
+
+
+
+# Make a new variable; calculate syklus 10 - syklus 6####
+library(reshape2)
+Areadata14 <- dcast(data = Areadata13,
+                    FLATEID + KOMNR ~ syklus_f,
+                    value.var = "Ospprha",
+                    fun.aggregate = mean)
+head(Areadata14)
+tail(Areadata14, 20)
+
+Areadata14$diff_Osp <- Areadata14$ten - Areadata14$six            
+
+temp <- dcast(data = Areadata13,
+              FLATEID + KOMNR ~ syklus_f,
+              value.var = "Browsing",
+              fun.aggregate = mean)
+head(temp)
+Areadata14$diff_browsing <- temp$ten - temp$six            
+Areadata14$browsing_six <- temp$six            
+
+
+plot(Areadata4$diff_browsing,Areadata4$diff_rogn)
+
+Areadata14 <- Areadata14[Areadata14$diff_Osp  < 100000,]
+Areadata14 <- Areadata14[Areadata4$diff_Osp  > -100000,]
+
+
+Areadata_kom <- aggregate(data = Areadata14,
+                          cbind(diff_Osp, diff_browsing, browsing_six) ~ KOMNR,
+                          FUN = mean,
+                          na.rm= T)
+head(Areadata_kom)
+
+
+plot(Areadata_kom$diff_browsing, Areadata_kom$diff_Osp)
+plot(Areadata_kom$browsing_seven, Areadata_kom$diff_Osp)
