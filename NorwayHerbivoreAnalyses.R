@@ -543,7 +543,8 @@ par(xpd=F)
 abline(v=0,lty=2)
 dev.off()
 
-writeOGR(kommetbio[,1:152],layer='Kommetbio',dsn='KommuneMetabolicBiomass49-15',driver="ESRI Shapefile")
+writeOGR(kommetbio[,1:152],layer='Kommetbio',dsn='KommuneMetabolicBiomass',driver = "SQLite",
+         dataset_options=c("SPATIALITE=yes"))
 
 # Clustering --------------------------------------------------------------
 
