@@ -576,7 +576,7 @@ dm1<-vegdist(mb1[,c(4:10,13,14,16)])
 #Hierarchical clustering
 hm1<-hclust(dm1)
 hm2<-hclust(dm1,method='ward.D')
-plot(hm2,labels=metabolicbiomass$knr2017[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841])
+plot(hm2,labels=paste(metabolicbiomass$knr2017[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841],metabolicbiomass$Year[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841]))
 #Cut tree
 #How many clusters?
 indexchoice<-'kl'#'cindex'
@@ -586,7 +586,15 @@ nclust<-NbClust(dm1,method=methodchoice,min.nc=2,max.nc=12,index=indexchoice)
 nclust$Best.nc ###5
 
 mb1$cm1<-cutree(hm2,k=5)
+cm1_ob<-cutree(hm2,k=5)
 write.table(mb1,'KommuneClust.csv')
+
+hm2$labels<-paste(metabolicbiomass$knr2017[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841],metabolicbiomass$Year[metabolicbiomass$knr2017!=1857 & metabolicbiomass$knr2017!=1874 & metabolicbiomass$knr2017!=1841])
+
+tiff(width=5,height=4,'ClusterDendrogram.tif',units='in',res=150)
+plot(as.phylo(hm2),tip.color=cp1[cm1_ob],cex=0.5,no.margin=T)
+dev.off()
+
 
 mbcutwide<-reshape(mb1[,c(1:3,21)],timevar='Year',direction='wide',idvar='knr2017',drop='kommune')
 mbcuttreedf<-merge(kommetbio,mbcutwide,by.x='KOMMUNENUM',by.y='knr2017')
@@ -608,9 +616,10 @@ tiff(width=7,height=5,units='in',res=100,'NorwayHerbivoreClusters.tif')
 #funprop<-function(x)x/max(x)
 #app1<-apply(herbclusts[,2:11],MARGIN=1,FUN=funprop)
 par(mar=c(9,5,1,5))
-barplot(t(herbclusts[,2:11]),legend=T,names.arg=clustname5,las=1,args.legend=list(x=7.2,y=350,title='Species',cex=0.8),col=c(colsR[1:5],1,greys[5:1]),
-        xlab='',las=2)
+barplot1<-barplot(t(herbclusts[,2:11]),legend=T,names.arg=clustname5,las=1,args.legend=list(x=7.2,y=350,title='Species',cex=0.8),col=c(colsR[1:5],1,greys[5:1]),
+        xlab='',las=2,border=NA)
 title(ylab=expression('Metabolic biomass kg km'^-2),line=2.5)
+dev.off()
 
 #barplot(app1,legend=T,names.arg=herbclusts$Group.1,las=1,args.legend=list(x=12,y=2.7,title='Species',cex=0.8,bg=0),col=c(colsR[1:5],1,greys[5:1]),
 #        xlab='Cluster',yaxt='n')+
@@ -620,6 +629,16 @@ title(ylab=expression('Metabolic biomass kg km'^-2),line=2.5)
 #axis(4, at = seq(0, max(colSums(app1)[8]), length.out = 5),las=1,
 #     labels = round(seq(0, max(herbclusts[8,2:11]), length.out = 5),-1))+
 #arrows(8.5,0,8.5,1.5,code=0,lty=2,lwd=2)
+
+
+#Barplot with colored labels
+tiff(width=7,height=5,units='in',res=100,'NorwayHerbivoreClusters_ColLab.tif')
+par(mar=c(9,5,1,5))
+barplot1<-barplot(t(herbclusts[,2:11]),legend=T,las=1,args.legend=list(x=7.2,y=350,title='Species',cex=0.8),col=c(colsR[1:5],1,greys[5:1]),
+                  xlab='',las=2,border=NA)
+title(ylab=expression('Metabolic biomass kg km'^-2),line=2.5)
+for(i in 1:5){
+  axis(1, at = barplot1[i], labels =clustname5[i], col.axis = cp1[i],las=2)}
 dev.off()
 
 #Make dataframe of props
