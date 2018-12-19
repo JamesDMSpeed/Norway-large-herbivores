@@ -803,3 +803,53 @@ legend('bottomr',pch=16,pt.cex=c(cexes),c(levels(as.factor(mb1$Year))),cex=0.8,n
 legend('topr',pch=16,pt.cex=0.8,clustname5,cex=0.8,ncol=1,col=cp1,title=c('Assemblage'))
 #ordiarrows(mdsClust,mb1$knr2017,startmark=1)
 dev.off()
+
+#Plot Euclidean distance of total shift
+edist<-c()
+for (i in 2:8){
+print(i)
+edist[i-1]<- sqrt((e2$factors$centroids[i,2] - e2$factors$centroids[i-1,2])^2 + (e2$factors$centroids[i,1] - e2$factors$centroids[i-1,1])^2) }
+plot(levels(as.factor(mb1$Year))[2:8],edist,type='b',xlab='Year',ylab='Euclidean distance',las=1,col='blue')
+
+# PRC ---------------------------------------------------------------------
+f1<-as.factor(mb1$cm1)
+f1<-relevel(f1,ref='3')
+prc1<-prc(log(mb1[,c(4:10,13:14,16)]+1),f1,as.factor(mb1$Year))
+plot(prc1,col=cp1[c(1:2,4:5)],lwd=2,lty=1,scaling=2,legpos=NA,xlab='Year')
+#abline(h=0,col=cp1[1])
+legend('bottoml',clustname5,lty=1,col=c(cp1[1:2],grey(0.5),cp1[4:5]))
+
+prc2<-prc(log(mb1[,c(4:10,13:14,16)]+1),as.factor(mb1$knr2017),as.factor(mb1$Year))
+plot(prc2,lty=1,scaling=2)
+
+prc3<-prc(log(mx1[,c(4:10,13:14,16)]+1),as.factor(mx1$ALTREG),as.factor(mx1$Year))
+plot(prc3,scaling=2)
+
+
+par(mfrow=c(3,1))
+plot(prc1,col=cp1[2:5],lwd=2,lty=1,scaling=2)
+plot(prc3,scaling=2)
+plot(levels(as.factor(mb1$Year))[2:8],edist,type='b',xlab='Year',ylab='Euclidean distance',las=1,col='blue',xlim=c(1949,2015))
+
+#PRC from baseline
+mx1$Initial<-mb1$Year
+mx1$Initial<-1
+mbBase<-mx1
+mbBase[mbBase$Year==1959,4:17]<-mb1[mb1$Year==1949,4:17]
+mbBase[mbBase$Year==1969,4:17]<-mb1[mb1$Year==1949,4:17]
+mbBase[mbBase$Year==1979,4:17]<-mb1[mb1$Year==1949,4:17]
+mbBase[mbBase$Year==1989,4:17]<-mb1[mb1$Year==1949,4:17]
+mbBase[mbBase$Year==1999,4:17]<-mb1[mb1$Year==1949,4:17]
+mbBase[mbBase$Year==2009,4:17]<-mb1[mb1$Year==1949,4:17]
+mbBase[mbBase$Year==2015,4:17]<-mb1[mb1$Year==1949,4:17]
+mbBase$Initial<-0
+
+
+mbPRC<-rbind(mx1,mbBase)
+
+prcR<-prc(log(mbPRC[,c(4:10,13:14,16)]+1),as.factor(mbPRC$Initial),as.factor(mbPRC$Year))
+
+tiff(width=7,height=5,units='in',res=100,'NorwayHerbivorePRC.tif')
+plot(prcR,scaling=2,legpos=NA,las=1,xlab='Year')
+dev.off()
+
