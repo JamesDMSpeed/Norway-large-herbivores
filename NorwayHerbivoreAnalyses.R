@@ -853,3 +853,6 @@ tiff(width=7,height=5,units='in',res=100,'NorwayHerbivorePRC.tif')
 plot(prcR,scaling=2,legpos=NA,las=1,xlab='Year')
 dev.off()
 
+#Writing spatial polygons
+writeOGR(kommetbio[,1:146],'Dataset','NorwayLargeHerbivores',driver='ESRI Shapefile')
+writeOGR(mbcuttreedf[,c(1:9,165:172)],'Dataset','NorwayHerbivoreAssemblages',driver='ESRI Shapefile')
