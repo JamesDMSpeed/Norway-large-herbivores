@@ -134,7 +134,10 @@ rowSums(yearlysums[,c(4:7,2:3,8,13,11,12)])/sum(listspp$sheep$utmar[listspp$shee
 rowSums(yearlysums[,c(3,8,11:13)])/sum(listspp$sheep$utmar[listspp$sheep$AAR==2015])
 #Yearly wildlife
 rowSums(yearlysums[,c(2,4:7)])/sum(listspp$sheep$utmar[listspp$sheep$AAR==2015])
-                   
+          
+#Wildlife as a proportion
+wildlifetotyr<-with(yearlysums,Wild_reindeer+Moose+Red_deer+Roe_deer+Musk_ox)
+totyr<-with(yearlysums,Wild_reindeer+Moose+Red_deer+Roe_deer+Musk_ox+Cattle+Sheep+Goat+Horse)         
 #Rewilding
 #Add metabiolicbiomasses to Norwegian kommune spatial data
 #First reshape to metabolic biomass to wide
@@ -518,7 +521,9 @@ modavggls<-model.avg(modselgls)
 importance(modavggls)
 summary(modavggls)
 
-
+#Vif
+require(car)
+vif(globmodgls)
 
 macdf<-data.frame(summary(modavggls)$coefmat.full[2:nrow(summary(modavggls)$coefmat.full),])
 impdf<-data.frame(importance(modavggls))
@@ -533,12 +538,13 @@ par(mfrow=c(1,2))
 par(mar=c(5,0,1,1))
 par(xpd=T)
 #Change rownames
-plotdf$Row.names<-c('Forest','Latitude (R)','Change in livestock','Mean annual precipitation','Mean summer temperature','Agriculture','Open-natural vegetation (R)')
-barplot(plotdf$importance.modavggls.,beside=T,horiz=T,names.arg=plotdf$Row.names,las=1,xlab='Importance',cex.axis=0.8,cex.names=0.8,cex.lab=0.8)
+plotdf$Row.names<-c('Forest','Latitude (R)','Change in livestock','Mean annual precipitation','Mean summer temperature','Agriculture','Tundra (R)')
+barplot(plotdf$importance.modavggls.,beside=T,horiz=T,names.arg=plotdf$Row.names,las=1,
+        xlab='Importance',cex.axis=0.8,cex.names=0.8,cex.lab=0.8,col=c(0,0,2,0,0,0))
 par(mar=c(5,1,1,1))
 b1<-barplot(plotdf[,2],horiz=T,col=F,border=F,xlim=c(-0.5,1.2),las=1,xlab='Model averaged coefficients',cex.axis=0.8,cex.lab=0.8)
-points(plotdf[,2],b1,pch=16)
-arrows(plotdf[,2]+plotdf[,3],b1,plotdf[,2]-plotdf[,3],b1,code=3,angle=90,length=0.05)
+points(plotdf[,2],b1,pch=16,col=c(1,1,2,1,1,1,1))
+arrows(plotdf[,2]+plotdf[,3],b1,plotdf[,2]-plotdf[,3],b1,code=3,angle=90,length=0.05,col=c(1,1,2,1,1,1))
 par(xpd=F)
 abline(v=0,lty=2)
 dev.off()
